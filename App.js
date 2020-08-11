@@ -24,7 +24,27 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import RNFS from 'react-native-fs';
+
 const App: () => React$Node = () => {
+  React.useEffect(() => {
+    ReceiveSharingIntent.getReceivedFiles(
+      async (files) => {
+        console.info(files);
+        const stats = await RNFS.stat(files[0].filePath);
+        console.info(stats);
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+
+    return () => {
+      ReceiveSharingIntent.clearReceivedFiles();
+    };
+  }, []);
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
