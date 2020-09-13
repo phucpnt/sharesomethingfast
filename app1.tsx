@@ -1,32 +1,16 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
+import * as eva from '@eva-design/eva';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {ApplicationProvider} from '@ui-kitten/components';
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
-
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import {SafeAreaView, ScrollView, StatusBar, StyleSheet} from 'react-native';
 import RNFS from 'react-native-fs';
-import {Hello} from './hello';
+import 'react-native-gesture-handler';
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {Share2Notion} from './share2-notion';
+
+const Stack = createStackNavigator();
 
 const App = () => {
   React.useEffect(() => {
@@ -47,50 +31,23 @@ const App = () => {
   }, []);
 
   return (
-    <>
+    <ApplicationProvider {...eva} theme={eva.light}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          <Hello />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
+          style={styles.scrollView}></ScrollView>
       </SafeAreaView>
-    </>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Notion">
+          <Stack.Screen
+            name="Notion"
+            component={Share2Notion}
+            options={{title: 'Share to Notion'}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ApplicationProvider>
   );
 };
 
