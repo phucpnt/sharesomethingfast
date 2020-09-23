@@ -1,5 +1,5 @@
 import React from 'react';
-import {Input, Layout} from '@ui-kitten/components';
+import {Card, Input, Layout} from '@ui-kitten/components';
 import {View, Text} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {
@@ -30,29 +30,33 @@ function Share2NotionDefault() {
     console.info('aaa');
   }
   return (
-    <View>
-      <Input multiline={true} textStyle={{minHeight: 64}} />
-      <TouchableOpacity onPress={onChangePost}>
-        <View style={{flexDirection: 'row'}}>
-          <View style={{flex: 0.3}}>
-            <Text>Add to</Text>
+    <Layout>
+      <Card>
+        <Input multiline={true} textStyle={{minHeight: 64}} />
+      </Card>
+      <Card>
+        <TouchableOpacity onPress={onChangePost}>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 0.3}}>
+              <Text>Add to</Text>
+            </View>
+            <View style={{flex: 0.7}}>
+              <Text>A post</Text>
+            </View>
           </View>
-          <View style={{flex: 0.7}}>
-            <Text>A post</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onChangePost}>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 0.3}}>
+              <Text>Workspace</Text>
+            </View>
+            <View style={{flex: 0.7}}>
+              <Text>My Workspace</Text>
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onChangePost}>
-        <View style={{flexDirection: 'row'}}>
-          <View style={{flex: 0.3}}>
-            <Text>Workspace</Text>
-          </View>
-          <View style={{flex: 0.7}}>
-            <Text>My Workspace</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    </View>
+        </TouchableOpacity>
+      </Card>
+    </Layout>
   );
 }
 
