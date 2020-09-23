@@ -1,0 +1,10 @@
+@host=http://localhost:3333
+
+####
+POST {{host}}/search
+Content-Type: application/json
+
+{
+  "query": "mathematic",
+  "spaceId": "4b11c342-af11-401b-aae7-47a97101da61",
+}

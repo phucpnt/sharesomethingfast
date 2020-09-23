@@ -1,29 +1,24 @@
 import * as eva from '@eva-design/eva';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {ApplicationProvider} from '@ui-kitten/components';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {SafeAreaView, ScrollView, StatusBar, StyleSheet} from 'react-native';
 import RNFS from 'react-native-fs';
 import 'react-native-gesture-handler';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import {Text} from 'react-native-svg';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {handleShareFile} from './handle-share-file';
 import {Share2Notion} from './share2-notion';
 
 const Stack = createStackNavigator();
 
 const App = () => {
   React.useEffect(() => {
-    ReceiveSharingIntent.getReceivedFiles(
-      async (files) => {
-        console.info(files);
-        const stats = await RNFS.stat(files[0].filePath);
-        console.info(stats);
-      },
-      (error) => {
-        console.error(error);
-      },
-    );
+    ReceiveSharingIntent.getReceivedFiles(handleShareFile, (error: Error) => {
+      console.error(error);
+    });
 
     return () => {
       ReceiveSharingIntent.clearReceivedFiles();
@@ -39,10 +34,15 @@ const App = () => {
           style={styles.scrollView}></ScrollView>
       </SafeAreaView>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Notion">
+        <Stack.Navigator initialRouteName="Default">
           <Stack.Screen
             name="Notion"
             component={Share2Notion}
+            options={{title: 'Share to Notion'}}
+          />
+          <Stack.Screen
+            name="Default"
+            component={DevShortcut}
             options={{title: 'Share to Notion'}}
           />
         </Stack.Navigator>
@@ -91,3 +91,19 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+
+function DevShortcut() {
+  const {navigate} = useNavigation();
+
+  useEffect(() => {
+    navigate('Notion', {
+      screen: 'NotionPostSelect',
+    });
+  }, []);
+
+  return (
+    <React.Fragment>
+      <Text>Dev...</Text>
+    </React.Fragment>
+  );
+}

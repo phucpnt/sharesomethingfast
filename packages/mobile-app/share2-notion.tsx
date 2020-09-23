@@ -1,13 +1,9 @@
-import React from 'react';
-import {Card, Input, Layout} from '@ui-kitten/components';
-import {View, Text} from 'react-native';
-import {createStackNavigator} from '@react-navigation/stack';
-import {
-  TouchableOpacity,
-  TouchableHighlight,
-} from 'react-native-gesture-handler';
-
 import {useNavigation} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {Card, Input, Layout} from '@ui-kitten/components';
+import React, { SyntheticEvent } from 'react';
+import {Text, View} from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const NotionStack = createStackNavigator();
 export function Share2Notion() {
@@ -61,5 +57,15 @@ function Share2NotionDefault() {
 }
 
 function NotionPostSelect() {
-  return <Text>Select post from notion.</Text>;
+
+  function onChangeText(text: string){
+    
+  }
+
+
+  return (
+    <Layout>
+      <Input placeholder="search..." onChangeText={onChangeText}/>
+    </Layout>
+  );
 }
