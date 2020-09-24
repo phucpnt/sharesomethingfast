@@ -21,15 +21,15 @@ type NotionSearchResult = {
 };
 
 type NotionQSRecord = {
-    id: string,
-    name: string,
-    type: string,
-}
+  id: string;
+  name: string;
+  type: string;
+};
 
 type NotionQSResult = {
-  record: NotionQSRecord,
-  acesstors: NotionQSRecord[],
-}
+  record: NotionQSRecord;
+  acesstors: NotionQSRecord[];
+};
 
 const TOKEN = process.env.TOKEN;
 
@@ -135,6 +135,41 @@ app.post("/search", async (req, res) => {
   }
 
   res.send({ data, total: result.data.total });
+});
+
+type notionPost = {
+  blockId: string;
+  items: notionPostLink[];
+};
+
+type notionPostLink = {
+  url: string;
+  title: string;
+};
+
+app.post("/add", async (req, res) => {
+  const { nodeId, items, token = TOKEN } = req.body;
+  const post: notionPost = {
+    blockId: <string>nodeId,
+    items: items,
+  };
+  const result = await axios.post(
+    "https://www.notion.so/api/v3/addWebClipperURLs",
+    {
+      ...post,
+    },
+    {
+      headers: {
+        headers: {
+          "Content-Type": "application/json",
+          cookie: `token_v2=${token}; `,
+        },
+      },
+    }
+  );
+
+  res.send(result.data);
+  res.end();
 });
 
 app.listen(Number(PORT), "0.0.0.0", () => {

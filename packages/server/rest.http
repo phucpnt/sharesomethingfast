@@ -17,3 +17,19 @@ Content-Type: application/json
   "query": "mathematic",
   "spaceId": "4b11c342-af11-401b-aae7-47a97101da61"
 }
+
+####
+POST {{host}}/add
+Content-Type: application/json
+
+{
+  "type":"block",
+  "blockId":"c85f71b5-0026-4ee6-91b7-aea9e9e3802a",
+  "items":[
+    {
+      "url":"https://medium.com/@pdx.lucasm/dotenv-nodemon-a380629e8bff",
+      "title":"Dotenv + Nodemon. Using environment variables the right… | by Lucas Miranda | Medium"
+    }
+  ],
+  "from":"chrome"
+}
