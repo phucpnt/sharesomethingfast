@@ -1,9 +1,17 @@
 import {useNavigation, StackActions, useRoute} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import {Button, Card, Input, Layout, List, ListItem} from '@ui-kitten/components';
+import {
+  Button,
+  Card,
+  Input,
+  Layout,
+  List,
+  ListItem,
+  Text,
+} from '@ui-kitten/components';
 import {debounce} from 'lodash';
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {getSuggestionList, notionQSRecord} from './util';
 
@@ -38,23 +46,25 @@ function Share2NotionDefault({route}: {route: {params: any}}) {
     addToItem = route.params?.selectedItem.record;
   }
 
+  function push2Notion() {}
+
   return (
-    <Layout>
-      <Card>
-        <Input multiline={true} textStyle={{minHeight: 64}} />
-      </Card>
-      <Card>
+    <Layout style={{padding: 5}}>
+      <Card style={{marginBottom: 5}}>
+        <Input multiline={true} defaultValue='Default title...' textStyle={{minHeight: 64}} />
         <TouchableOpacity onPress={onChangePost}>
           <View style={{flexDirection: 'row', margin: 5}}>
             <View style={{flex: 0.3}}>
-              <Text>Add to</Text>
+              <Text appearance="hint">Add to</Text>
             </View>
             <View style={{flex: 0.7}}>
-              <Text>{addToItem.name}</Text>
+              <Text category="s1">{addToItem.name}</Text>
             </View>
           </View>
         </TouchableOpacity>
-        <Button style={{margin: 5}}>SUBMIT</Button>
+        <Button style={{marginTop: 20}} onPress={push2Notion}>
+          SUBMIT
+        </Button>
       </Card>
     </Layout>
   );
