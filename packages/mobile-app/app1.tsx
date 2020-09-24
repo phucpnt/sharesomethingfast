@@ -43,7 +43,7 @@ const App = () => {
           <Stack.Screen
             name="Default"
             component={DevShortcut}
-            options={{title: 'Share to Notion'}}
+            options={{title: 'Dev shortcut'}}
           />
         </Stack.Navigator>
       </NavigationContainer>
