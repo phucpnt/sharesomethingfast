@@ -1,5 +1,8 @@
 import axios from "axios";
+import moment, { parseTwoDigitYear } from "moment";
 import { MTProto } from "@mtproto/core";
+import { Readable } from "stream";
+import { readFile } from "fs/promises";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const chatId = process.env.TELEGRAM_BOT_USERNAME;
@@ -28,12 +31,22 @@ type teleMessageSend = {
 type structNote = Pick<teleMessageSend, "text" | "parse_mode">;
 
 function makeProgramableNote(text: string, payload: any): structNote {
-  let content = `
-${text}\n
-\`\`\`javascript
-${JSON.stringify(payload, null, 2)}
-\`\`\`
-  `;
+  const timeStr = moment().format("YYYY-MM-DD HH:mm:ss");
+  //   let content = `
+  // ${text}\n
+  // ===========
+  // ${JSON.stringify(payload, null, 2)}
+  // ===========${timeStr}<<<
+  // `;
+
+  let content = JSON.stringify(
+    {
+      text,
+      payload,
+    },
+    null,
+    2
+  );
   return {
     text: content,
     parse_mode: "MarkdownV2",
@@ -93,6 +106,18 @@ export async function appSignin(
   return result;
 }
 
+export async function getFullUser() {
+  const result = await teleApp.call("users.getFullUser", {
+    id: {
+      _: "inputUserSelf",
+    },
+  });
+
+  console.dir(result);
+
+  return result;
+}
+
 export async function getHistoryMessages(fromMessageId: number, limit = 100) {
   const result = await teleApp.call("messages.getHistory", {
     peer: {
@@ -106,14 +131,86 @@ export async function getHistoryMessages(fromMessageId: number, limit = 100) {
   return result;
 }
 
-export async function getFullUser() {
-  const result = await teleApp.call("users.getFullUser", {
-    id: {
-      _: "inputUserSelf",
-    },
+export function sendMessage(text: string, payload: any) {
+  const pNote = makeProgramableNote(text, payload);
+  return teleApp
+    .call("messages.sendMessage", {
+      peer: {
+        _: "inputPeerChannel",
+        channel_id: 1383133416,
+        access_hash: "17932621754438103818",
+      },
+      flags: {
+        no_webpage: true,
+      },
+      message: pNote.text,
+      random_id: Number(Math.random().toString().slice(2)),
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
+const maxPartSize = 512 * 1024;
+function uploadPart(fileId: number, partIndex: number, bytes: any) {
+  return teleApp.call("upload.saveFilePart", {
+    file_id: fileId,
+    file_part: partIndex,
+    bytes,
+  });
+}
+
+type uploadQueue = {
+  fileId: number;
+  uploadIndex: number;
+  parts: any[];
+};
+
+export async function uploadFile(
+  fstream: Readable,
+  text: string,
+  payload: any
+) {
+  let uploadQ: uploadQueue = {
+    fileId: Number(Math.random().toString().slice(2)),
+    uploadIndex: 0,
+    parts: [[]],
+  };
+  let readFileDone = false;
+
+  fstream.on("data", (chunk) => {
+    const cIndex = uploadQ.parts.length - 1;
+    const remainPartSize =
+      uploadQ.parts.length > 0
+        ? maxPartSize - uploadQ.parts[cIndex].length
+        : maxPartSize;
+
+    uploadQ.parts[cIndex] = uploadQ.parts[cIndex].concat(
+      chunk.slice(0, remainPartSize)
+    );
+
+    if (remainPartSize < chunk.length) {
+      uploadQ.parts.push([].concat(chunk.slice(remainPartSize)));
+    }
+  });
+  fstream.on("end", () => {
+    readFileDone = true;
   });
 
-  console.dir(result);
+  for (; uploadQ.parts.length > 0 && !readFileDone; ) {
+    let singlePart = uploadQ.parts[0];
+    if (singlePart.length === maxPartSize) {
+      // valid full part
+      await uploadPart(uploadQ.fileId, uploadQ.uploadIndex++, singlePart);
+      uploadQ.parts.shift();
+    } else if (uploadQ.parts.length === 1 && readFileDone) {
+      // end of file and part is not full
+      await uploadPart(uploadQ.fileId, uploadQ.uploadIndex++, singlePart);
+      uploadQ.parts.shift();
+    }
+  }
 
-  return result;
+  return {
+    fileId: uploadQ.fileId,
+  };
 }

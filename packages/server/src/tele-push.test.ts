@@ -4,6 +4,7 @@ import {
   sendNote,
   getHistoryMessages,
   getFullUser,
+  sendMessage,
 } from "./tele-push";
 
 const phoneNumber = String(process.env.TELEGRAM_PHONE_NUMBER);
@@ -28,14 +29,25 @@ xit("should sign user in", async () => {
   expect(result).toBeDefined();
 });
 
+xit("should get full user", async () => {
+  const result = await getFullUser();
+
+  expect(result).toBeDefined();
+});
+
 it("should read the chat history", async () => {
   const result = await getHistoryMessages(2);
   console.info(result);
   expect(result).toBeDefined();
 });
 
-xit("should get full user", async () => {
-  const result = await getFullUser();
+it("should send message correctly", async () => {
+  const result = await sendMessage("test message", {
+    field1: "aaa",
+    field2: 12345,
+  });
+
+  console.info(result);
 
   expect(result).toBeDefined();
 });
