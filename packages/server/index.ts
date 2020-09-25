@@ -140,6 +140,7 @@ app.post("/search", async (req, res) => {
 type notionPost = {
   blockId: string;
   items: notionPostLink[];
+  type: string;
 };
 
 type notionPostLink = {
@@ -147,31 +148,49 @@ type notionPostLink = {
   title: string;
 };
 
-app.post("/add", async (req, res) => {
-  const { nodeId, items, token = TOKEN } = req.body;
+app.post("/add", mwCatchError, async (req, res) => {
+  const { nodeId, items, type, token = TOKEN } = req.body;
   const post: notionPost = {
+    type: type,
     blockId: <string>nodeId,
     items: items,
   };
-  const result = await axios.post(
-    "https://www.notion.so/api/v3/addWebClipperURLs",
-    {
-      ...post,
-    },
-    {
-      headers: {
+
+
+  console.info({ token });
+  try {
+    const result = await axios.post(
+      "https://www.notion.so/api/v3/addWebClipperURLs",
+      {
+        ...post,
+        from: "chrome",
+      },
+      {
         headers: {
           "Content-Type": "application/json",
           cookie: `token_v2=${token}; `,
         },
-      },
-    }
-  );
-
-  res.send(result.data);
-  res.end();
+      }
+    );
+    res.send(result.data);
+    res.end();
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 app.listen(Number(PORT), "0.0.0.0", () => {
   console.info("server started on port %s", PORT);
 });
+
+function mwCatchError(
+  req: Express.Request,
+  res: Express.Response,
+  next: () => void
+) {
+  try {
+    next();
+  } catch (error) {
+    console.error(error);
+  }
+}
