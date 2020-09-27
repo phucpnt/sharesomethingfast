@@ -2,7 +2,7 @@ import axios from "axios";
 import moment, { parseTwoDigitYear } from "moment";
 import { MTProto } from "@mtproto/core";
 import { Readable } from "stream";
-import { readFile } from "fs/promises";
+import md5File from "md5-file";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const chatId = process.env.TELEGRAM_BOT_USERNAME;
@@ -151,13 +151,21 @@ export function sendMessage(text: string, payload: any) {
     });
 }
 
-const maxPartSize = 512 * 1024;
-function uploadPart(fileId: number, partIndex: number, bytes: any) {
+const maxPartSize = 512 * 1024 - 84;
+function uploadPart(fileId: number, partIndex: number, buffer: Buffer) {
+  console.info('buffer length', buffer.length, buffer.byteLength)
   return teleApp.call("upload.saveFilePart", {
     file_id: fileId,
     file_part: partIndex,
-    bytes,
+    bytes: buffer, 
   });
+
+  // return new Promise((resolve) => {
+  //   setTimeout(() => {
+  //     console.info('upload part', {fileId, partIndex, bytes})
+  //     resolve(true);
+  //   }, 100);
+  // });
 }
 
 type uploadQueue = {
@@ -168,13 +176,20 @@ type uploadQueue = {
 
 export async function uploadFile(
   fstream: Readable,
-  text: string,
-  payload: any
+  fileInfo: {
+    md5checksum: string;
+    filename: string;
+    mimeType: string;
+  },
+  message: {
+    text: string;
+    payload: any;
+  }
 ) {
   let uploadQ: uploadQueue = {
     fileId: Number(Math.random().toString().slice(2)),
     uploadIndex: 0,
-    parts: [[]],
+    parts: [Buffer.concat([])],
   };
   let readFileDone = false;
 
@@ -185,19 +200,21 @@ export async function uploadFile(
         ? maxPartSize - uploadQ.parts[cIndex].length
         : maxPartSize;
 
-    uploadQ.parts[cIndex] = uploadQ.parts[cIndex].concat(
-      chunk.slice(0, remainPartSize)
-    );
+    const cbuffer = Buffer.concat([chunk]);
+    uploadQ.parts[cIndex] = Buffer.concat([
+      uploadQ.parts[cIndex],
+      cbuffer.slice(0, remainPartSize),
+    ]);
 
     if (remainPartSize < chunk.length) {
-      uploadQ.parts.push([].concat(chunk.slice(remainPartSize)));
+      uploadQ.parts.push(chunk.slice(remainPartSize));
     }
   });
   fstream.on("end", () => {
     readFileDone = true;
   });
 
-  for (; uploadQ.parts.length > 0 && !readFileDone; ) {
+  for (; uploadQ.parts.length > 0 || !readFileDone; ) {
     let singlePart = uploadQ.parts[0];
     if (singlePart.length === maxPartSize) {
       // valid full part
@@ -208,9 +225,35 @@ export async function uploadFile(
       await uploadPart(uploadQ.fileId, uploadQ.uploadIndex++, singlePart);
       uploadQ.parts.shift();
     }
+    await sleep(10);
   }
 
-  return {
-    fileId: uploadQ.fileId,
-  };
+  return teleApp.call("messages.sendMedia", {
+    media: {
+      _: "inputMediaUploadedDocument",
+      file: {
+        _: "inputFile",
+        id: uploadQ.fileId,
+        parts: uploadQ.uploadIndex,
+        md5_checksum: fileInfo.md5checksum,
+      },
+      mime_type: fileInfo.mimeType,
+      attributes: [
+        {
+          _: "documentAttributeFilename",
+          file_name: fileInfo.filename,
+        },
+      ],
+    },
+    message: makeProgramableNote(message.text, message.payload).text,
+    random_id: Math.random().toString().slice(2),
+  });
+
+  return { fileId: uploadQ.fileId };
+}
+
+function sleep(timeout: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(), timeout);
+  });
 }
