@@ -1,21 +1,56 @@
+import 'react-native-gesture-handler';
 import * as eva from '@eva-design/eva';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {debounce} from 'lodash';
+import {
+  NavigationContainer,
+  StackActions,
+  useNavigation,
+} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {ApplicationProvider, Text} from '@ui-kitten/components';
 import React, {useEffect} from 'react';
 import {SafeAreaView, ScrollView, StatusBar, StyleSheet} from 'react-native';
 import RNFS from 'react-native-fs';
-import 'react-native-gesture-handler';
-import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import ReceiveSharingIntent from 'phucpnt-react-native-receive-sharing-intent';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {handleShareFile} from './handle-share-file';
+import {handleShareFile, sharedObj} from './handle-share-file';
 import {Share2Notion} from './share2-notion';
 
 const Stack = createStackNavigator();
 
 const App = () => {
+  const navRef = React.useRef(null);
+
+  const onSharedReceived = React.useCallback(
+    debounce(
+      (files) =>
+        handleShareFile(files).then((files) => {
+          navRef.current?.dispatch(
+            StackActions.replace('Notion', {
+              screen: 'Default',
+              params: {
+                sharing: files,
+                selectedItem: {
+                  record: {
+                    collectionId: 'ef3c75e8-517e-4b8f-b602-93423d607f7b',
+                    id: '6daf797c-a341-4a81-8acb-2f94877860b5',
+                    name: 'Mathematic thinkings coursera',
+                    role: 'editor',
+                    table: 'block',
+                    type: 'collection_view',
+                  },
+                },
+              },
+            }),
+          );
+        }),
+      100,
+    ),
+    [],
+  );
+
   React.useEffect(() => {
-    ReceiveSharingIntent.getReceivedFiles(handleShareFile, (error: Error) => {
+    ReceiveSharingIntent.getReceivedFiles(onSharedReceived, (error: Error) => {
       console.error(error);
     });
 
@@ -32,8 +67,8 @@ const App = () => {
           contentInsetAdjustmentBehavior="automatic"
           style={styles.scrollView}></ScrollView>
       </SafeAreaView>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Default">
+      <NavigationContainer ref={navRef}>
+        <Stack.Navigator initialRouteName={'Default'}>
           <Stack.Screen
             name="Notion"
             component={Share2Notion}
