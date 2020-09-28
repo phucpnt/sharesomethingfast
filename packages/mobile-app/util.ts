@@ -2,10 +2,10 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 const req = axios.create({
-  baseURL: 'http://192.168.0.85:3333',
+  baseURL: 'http://192.168.0.120:5000',
 });
 
-if (__DEV__) {
+if (false && __DEV__) {
   const mock = new MockAdapter(req);
 
   mock.onPost('/text').reply(200, {
@@ -102,20 +102,31 @@ export async function sendFile(note: noteFile) {
     form.append('file', {
       name: i.fileName,
       uri: i.contentUri,
+      type: i.mimeType,
     });
   });
 
   form.append(
-    'text',
+    'payload',
     JSON.stringify({text: note.text, service: note.payload.service}),
   );
 
-  const result = await req.post('/file', form, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  form.append('service', note.payload.service);
 
-  return result;
+  const res1 = await req.get('/');
+
+  console.info(res1.data);
+
+  try {
+    const result = await req.post('/file', form, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return result;
+  } catch (error) {
+    console.error(error);
+  }
+  return null;
 }

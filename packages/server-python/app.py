@@ -19,7 +19,6 @@ def sendNote():
     service = data.service
     payload = data.payload
 
-
     assert text is not None
     assert service is not None
 
@@ -36,15 +35,14 @@ def sendFile():
 
     if 'file' not in request.files:
         return {"error": True, "message": 'no file uploaded.'}
-    file = request.files['file']
-    # if user does not select file, browser also
-    # submit an empty part without filename
-    if file.filename == '':
-        return {"error": True, "message": 'file not have name.'}
-    if file:
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        
-        return {"ok": True, "filename": filename}
-    
 
+    for file in request.files.getlist('file'):
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            return {"error": True, "message": 'file not have name.'}
+        if file:
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    return {"ok": True, "filename": filename}
