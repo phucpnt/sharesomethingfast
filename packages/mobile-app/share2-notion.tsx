@@ -45,14 +45,20 @@ function Share2NotionDefault({
   };
 }) {
   const navigation = useNavigation();
+  let desc = '...';
+  // if (route.params.sharing) {
+  //   let subject = route.params.sharing[0].subject;
+  //   let text = route.params.sharing[0].text;
+  //   desc = [subject, text].filter((i) => i).join('\n');
+  // }
 
-  const [description, setDescription] = React.useState('default title...');
+  const [description, setDescription] = React.useState(desc);
 
   React.useEffect(() => {
     if (route.params.sharing) {
       let subject = route.params.sharing[0].subject;
       let text = route.params.sharing[0].text;
-      setDescription([subject, text].filter(i=> i).join('\n'));
+      setDescription([subject, text].filter((i) => i).join('\n=========================\n\n'));
     }
   }, []);
 
