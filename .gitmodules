@@ -1,0 +1,3 @@
+[submodule "packages/react-native-receive-sharing-intent"]
+	path = packages/react-native-receive-sharing-intent
+	url = https://github.com/phucpnt/react-native-receive-sharing-intent.git
