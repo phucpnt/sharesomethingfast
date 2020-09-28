@@ -5,6 +5,7 @@ type sharedFile = {
   contentUri?: string;
   fileName?: string;
   extension?: string;
+  mimeType?: string;
   subject: string;
 };
 
@@ -16,8 +17,6 @@ async function handleShareFile(
   files: sharedFile[],
   ...rest: any
 ): Promise<sharedObj[]> {
-  console.info({files, rest});
-
   if (files.length > 0) {
     let afile = files[0];
     if (afile.weblink) {

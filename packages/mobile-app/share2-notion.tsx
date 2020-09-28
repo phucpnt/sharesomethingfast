@@ -19,7 +19,7 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {sharedObj} from './handle-share-file';
-import {getSuggestionList, notionQSRecord, sendNote} from './util';
+import {getSuggestionList, notionQSRecord, sendFile, sendNote} from './util';
 
 const NotionStack = createStackNavigator();
 export function Share2Notion() {
@@ -46,19 +46,18 @@ function Share2NotionDefault({
 }) {
   const navigation = useNavigation();
   let desc = '...';
-  // if (route.params.sharing) {
-  //   let subject = route.params.sharing[0].subject;
-  //   let text = route.params.sharing[0].text;
-  //   desc = [subject, text].filter((i) => i).join('\n');
-  // }
 
   const [description, setDescription] = React.useState(desc);
 
   React.useEffect(() => {
-    if (route.params.sharing) {
+    if (route.params.sharing && route.params.sharing.length > 0) {
       let subject = route.params.sharing[0].subject;
       let text = route.params.sharing[0].text;
-      setDescription([subject, text].filter((i) => i).join('\n=========================\n\n'));
+      setDescription(
+        [subject, text]
+          .filter((i) => i)
+          .join('\n=========================\n\n'),
+      );
     }
   }, []);
 
@@ -78,13 +77,37 @@ function Share2NotionDefault({
   }
 
   function push2Notion() {
-    sendNote({
-      text: description,
-      service: 'notion',
-      payload: {isWebLink: false, addToItem},
-    }).then(() => {
-      navigation.goBack();
-    });
+    const files =
+      route.params.sharing?.filter(
+        (i) => i.contentUri && i.fileName && i.mimeType,
+      ) || [];
+    if (files.length > 0) {
+      sendFile({
+        text: description,
+        payload: {
+          service: 'notion',
+          files: files.map((i) => ({
+            contentUri: i.contentUri,
+            fileName: i.fileName,
+            filePath: i.filePath,
+            mimeType: i.mimeType,
+          })),
+        },
+      }).then((result) => {
+        console.info('file send result', result);
+      });
+    } else {
+      sendNote({
+        text: description,
+        payload: {
+          service: 'notion',
+          isWebLink: false,
+          addToItem,
+        },
+      }).then(() => {
+        navigation.goBack();
+      });
+    }
   }
 
   return (
@@ -106,11 +129,30 @@ function Share2NotionDefault({
             </View>
           </View>
         </TouchableOpacity>
+        {route.params.sharing && (
+          <NotionShareFilePreview sharing={route.params.sharing} />
+        )}
         <Button style={{marginTop: 20}} onPress={push2Notion}>
           SUBMIT
         </Button>
       </Card>
     </Layout>
+  );
+}
+
+function NotionShareFilePreview({sharing}: {sharing: sharedObj[]}) {
+  const sharedFiles = sharing.filter((i) => i.contentUri && i.filePath);
+
+  return (
+    <View>
+      {sharedFiles.map((i) => {
+        return (
+          <View key={i.contentUri}>
+            <Text>{i.fileName}</Text>
+          </View>
+        );
+      })}
+    </View>
   );
 }
 

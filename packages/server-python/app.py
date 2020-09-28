@@ -11,7 +11,7 @@ def hello_world():
     return 'Hello, World!'
 
 
-@app.route('/note', methods=['POST'])
+@app.route('/text', methods=['POST'])
 def sendNote():
     data = Request.get_json(request)
     text = data.text
