@@ -13,9 +13,15 @@ def hello_world():
 
 @app.route('/note', methods=['POST'])
 def sendNote():
-    data = Request.get_json(request)
+    data = request.get_json(request)
+
     text = data.text
+    service = data.service
     payload = data.payload
+
+
+    assert text is not None
+    assert service is not None
 
     return {"ok": True}
 
@@ -23,6 +29,11 @@ def sendNote():
 @app.route('/file', methods=['POST'])
 def sendFile():
     # check if the post request has the file part
+    service = request.form['service']
+    payload = request.form['payload']
+    assert service is not None
+    assert payload is not None
+
     if 'file' not in request.files:
         return {"error": True, "message": 'no file uploaded.'}
     file = request.files['file']
@@ -33,5 +44,7 @@ def sendFile():
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
         return {"ok": True, "filename": filename}
+    
 

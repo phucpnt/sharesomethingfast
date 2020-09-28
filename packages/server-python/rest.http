@@ -16,9 +16,9 @@ POST {{host}}/file
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="text"
+Content-Disposition: form-data; name="service"
 
-title
+notion
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="file"; filename="chat_item_team_chat.csv"
 Content-Type: text/csv
