@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import * as eva from '@eva-design/eva';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -5,8 +6,7 @@ import {ApplicationProvider, Text} from '@ui-kitten/components';
 import React, {useEffect} from 'react';
 import {SafeAreaView, ScrollView, StatusBar, StyleSheet} from 'react-native';
 import RNFS from 'react-native-fs';
-import 'react-native-gesture-handler';
-import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import ReceiveSharingIntent from 'phucpnt-react-native-receive-sharing-intent';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {handleShareFile} from './handle-share-file';
 import {Share2Notion} from './share2-notion';

@@ -18,8 +18,9 @@ const titlePatt = /<\s*title.*>(.*?)<\/title>/im;
 
 async function handleShareFile(
   files: sharedFile[],
+  ...rest: any
 ): Promise<sharedLink[] | sharedFile[]> {
-  console.info({files});
+  console.info({files, rest});
 
   if (files.length > 0) {
     let afile = files[0];

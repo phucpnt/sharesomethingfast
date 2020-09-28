@@ -5529,6 +5529,11 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
+phucpnt-react-native-receive-sharing-intent@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/phucpnt-react-native-receive-sharing-intent/-/phucpnt-react-native-receive-sharing-intent-1.0.5.tgz#77ae116bb143c90e34879daf3399b43ff3efd436"
+  integrity sha512-7FUF0am1kkqMOLPp7jl7avT69PJViuBhUN/Iqh2lMYWHNnhYlFYAXbUCOXDGfuMA6MaLErIzpfCmHSELYrizwQ==
+
 picomatch@^2.0.4, picomatch@^2.0.5:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.2.2.tgz#21f333e9b6b8eaff02468f5146ea406d345f4dad"
@@ -5752,11 +5757,6 @@ react-native-reanimated@^1.11.0:
   integrity sha512-jiJUN1P7J4gwac1AUvYdedYThTDlFuUU1iXCB9RMcclLiuXbkNGiKDIyeOVIjWc0GwZceKBvaIgoW1RICNrvTg==
   dependencies:
     fbjs "^1.0.0"
-
-react-native-receive-sharing-intent@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/react-native-receive-sharing-intent/-/react-native-receive-sharing-intent-1.0.4.tgz#9b2ad2f46b7d301e8091da25f41a9a0d52d162a2"
-  integrity sha512-y2LF/IcmcB3DBPtjqKN80qg814xwWOZw1e1yw5jnppzMVQVmU4bPQWaGgWqr2wppq/PdWiw3shgc5oRCZC5bSg==
 
 react-native-safe-area-context@^3.1.4:
   version "3.1.4"
