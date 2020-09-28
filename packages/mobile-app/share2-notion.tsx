@@ -1,4 +1,9 @@
-import {useNavigation, StackActions, useRoute} from '@react-navigation/native';
+import {
+  useNavigation,
+  StackActions,
+  useRoute,
+  BaseRouter,
+} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {
   Button,
@@ -13,7 +18,8 @@ import {debounce} from 'lodash';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import {getSuggestionList, notionQSRecord} from './util';
+import {sharedObj} from './handle-share-file';
+import {getSuggestionList, notionQSRecord, sendNote} from './util';
 
 const NotionStack = createStackNavigator();
 export function Share2Notion() {
@@ -28,8 +34,27 @@ export function Share2Notion() {
   );
 }
 
-function Share2NotionDefault({route}: {route: {params: any}}) {
+function Share2NotionDefault({
+  route,
+}: {
+  route: {
+    params: {
+      sharing?: sharedObj[];
+      [key: string]: any;
+    };
+  };
+}) {
   const navigation = useNavigation();
+
+  const [description, setDescription] = React.useState('default title...');
+
+  React.useEffect(() => {
+    if (route.params.sharing) {
+      let subject = route.params.sharing[0].subject;
+      let text = route.params.sharing[0].text;
+      setDescription([subject, text].filter(i=> i).join('\n'));
+    }
+  }, []);
 
   function onChangePost() {
     navigation.navigate('NotionPostSelect');
@@ -46,12 +71,25 @@ function Share2NotionDefault({route}: {route: {params: any}}) {
     addToItem = route.params?.selectedItem.record;
   }
 
-  function push2Notion() {}
+  function push2Notion() {
+    sendNote({
+      text: description,
+      service: 'notion',
+      payload: {isWebLink: false, addToItem},
+    }).then(() => {
+      navigation.goBack();
+    });
+  }
 
   return (
     <Layout style={{padding: 5}}>
       <Card style={{marginBottom: 5}}>
-        <Input multiline={true} defaultValue='Default title...' textStyle={{minHeight: 64}} />
+        <Input
+          multiline={true}
+          value={description}
+          textStyle={{minHeight: 64}}
+          onChangeText={(t) => setDescription(t)}
+        />
         <TouchableOpacity onPress={onChangePost}>
           <View style={{flexDirection: 'row', margin: 5}}>
             <View style={{flex: 0.3}}>
