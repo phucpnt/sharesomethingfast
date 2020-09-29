@@ -1,5 +1,5 @@
 venv/
-
+*.session
 *.pyc
 __pycache__/
 
