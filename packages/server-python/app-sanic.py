@@ -6,6 +6,7 @@ from telethon import TelegramClient, events, sync, sessions
 from telethon.tl.types import PeerChannel, User, DocumentAttributeFilename
 import asyncio
 import hypercorn.asyncio
+from json import dumps
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -24,7 +25,7 @@ app = Sanic('app-sanic')
 @app.listener('before_server_start')
 async def setup_telethon(app, loop):
     global client
-    client = TelegramClient('anon', api_id, api_hash, loop=loop)
+    client = TelegramClient('single_user', api_id, api_hash, loop=loop)
     await client.connect()
 
 
@@ -62,6 +63,7 @@ async def sendFile(request):
 
     service = form['service']
     payload = form['payload']
+
     assert service is not None
     assert payload is not None
 
@@ -77,7 +79,11 @@ async def sendFile(request):
             return json({"error": 1, "message": 'file not have name.'})
         if file:
             filename = secure_filename(file.name)
-            await client.send_file(PeerChannel(channel_id), file=file.body, attributes=[DocumentAttributeFilename(file.name)])
+            await client.send_file(
+                PeerChannel(channel_id),
+                file=file.body,
+                attributes=[DocumentAttributeFilename(file.name)],
+                caption=dumps({"service": service, "payload": payload}))
 
     return json({"ok": 1, "filename": filename})
 
