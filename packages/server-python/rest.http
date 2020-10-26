@@ -29,3 +29,10 @@ Content-Type: text/csv
 
 < ./tests/chat_item_team_chat.csv
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+###
+GET {{host}}/login?phone=+84937879948
+
+###
+GET {{host}}/login?phone_code_hash=69f90af20036d18c78&code=63100
